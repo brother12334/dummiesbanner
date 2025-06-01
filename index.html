@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DUMMIES Screensaver</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #303030;
+      overflow: hidden;
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    #menu {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 15px;
+      border-radius: 10px;
+      color: white;
+      display: none;
+      z-index: 10;
+    }
+
+    #menu label {
+      display: block;
+      margin-top: 10px;
+    }
+
+    #menu input[type=range] {
+      width: 200px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="screensaver"></canvas>
+
+  <div id="menu">
+    <label>Speed: <span id="speedDisplay">2</span></label>
+    <input type="range" id="speed" min="0.5" max="10" step="0.1" value="2">
+
+    <label>Width: <span id="sizeDisplay">200</span>px</label>
+    <input type="range" id="size" min="100" max="800" step="10" value="200">
+  </div>
+
+  <script>
+    const canvas = document.getElementById("screensaver");
+    const ctx = canvas.getContext("2d");
+
+    let logo = new Image();
+    logo.src = "Untitled design (26).png"; // Use your latest file name
+
+    let x = 100;
+    let y = 100;
+    let dx = 2;
+    let dy = 2;
+    let logoWidth = 200;
+    let logoHeight = 100; // will be updated based on aspect ratio
+
+    let aspectRatio = 0.5;
+
+    const speedSlider = document.getElementById("speed");
+    const sizeSlider = document.getElementById("size");
+    const speedDisplay = document.getElementById("speedDisplay");
+    const sizeDisplay = document.getElementById("sizeDisplay");
+    const menu = document.getElementById("menu");
+
+    let showMenu = false;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      logoHeight = logoWidth * aspectRatio;
+      ctx.drawImage(logo, x, y, logoWidth, logoHeight);
+
+      x += dx;
+      y += dy;
+
+      if (x + logoWidth >= canvas.width || x <= 0) dx *= -1;
+      if (y + logoHeight >= canvas.height || y <= 0) dy *= -1;
+
+      requestAnimationFrame(animate);
+    }
+
+    // Settings
+    speedSlider.oninput = () => {
+      const speed = parseFloat(speedSlider.value);
+      dx = dx > 0 ? speed : -speed;
+      dy = dy > 0 ? speed : -speed;
+      speedDisplay.textContent = speed;
+    };
+
+    sizeSlider.oninput = () => {
+      logoWidth = parseInt(sizeSlider.value);
+      logoHeight = logoWidth * aspectRatio;
+      sizeDisplay.textContent = logoWidth;
+    };
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key.toLowerCase() === "m") {
+        showMenu = !showMenu;
+        menu.style.display = showMenu ? "block" : "none";
+      }
+    });
+
+    logo.onload = () => {
+      aspectRatio = logo.height / logo.width;
+      logoHeight = logoWidth * aspectRatio;
+      animate();
+    };
+  </script>
+</body>
+</html>
